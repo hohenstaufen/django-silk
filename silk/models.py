@@ -187,8 +187,8 @@ class Response(models.Model):
     def raw_body_decoded(self):
     	if self.raw_body:
             return base64.b64decode(self.raw_body)
-	else:
-	    return ''
+        else:
+            return ''
 
 
 # TODO rewrite docstring
