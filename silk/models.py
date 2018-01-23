@@ -141,7 +141,7 @@ class Request(models.Model):
             target_count -= int(1 / check_percent)
         prune_count = max(cls.objects.count() - target_count, 0)
         prune_rows = cls.objects.order_by('start_time') \
-            .values_list('id', flat=True)[:prune_count]
+                         .values_list('id', flat=True)[:prune_count]
         cls.objects.filter(id__in=list(prune_rows)).delete()
 
     def save(self, *args, **kwargs):
@@ -185,7 +185,7 @@ class Response(models.Model):
 
     @property
     def raw_body_decoded(self):
-    	if self.raw_body:
+        if self.raw_body:
             return base64.b64decode(self.raw_body)
         else:
             return ''
