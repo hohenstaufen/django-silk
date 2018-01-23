@@ -110,32 +110,33 @@ class RequestModelFactory(object):
     def body(self):
         content_type, char_set = self.content_type()
         raw_body = self.request.body
-        if char_set:
-            try:
-                raw_body = raw_body.decode(char_set)
-            except AttributeError:
-                pass
-            except LookupError:  # If no encoding exists, default to UTF-8
+        if raw_body:
+            if char_set:
+                try:
+                    raw_body = raw_body.decode(char_set)
+                except AttributeError:
+                    pass
+                except LookupError:  # If no encoding exists, default to UTF-8
+                    try:
+                        raw_body = raw_body.decode('UTF-8')
+                    except AttributeError:
+                        pass
+                    except UnicodeDecodeError:
+                        raw_body = ''
+                except Exception as e:
+                    Logger.error(
+                        'Unable to decode request body using char_set %s due to error: %s. Will ignore. Stacktrace:'
+                        % (char_set, e)
+                    )
+                    traceback.print_exc()
+            else:
+                # Default to an attempt at UTF-8 decoding.
                 try:
                     raw_body = raw_body.decode('UTF-8')
                 except AttributeError:
                     pass
                 except UnicodeDecodeError:
                     raw_body = ''
-            except Exception as e:
-                Logger.error(
-                    'Unable to decode request body using char_set %s due to error: %s. Will ignore. Stacktrace:'
-                    % (char_set, e)
-                )
-                traceback.print_exc()
-        else:
-            # Default to an attempt at UTF-8 decoding.
-            try:
-                raw_body = raw_body.decode('UTF-8')
-            except AttributeError:
-                pass
-            except UnicodeDecodeError:
-                raw_body = ''
         max_size = SilkyConfig().SILKY_MAX_REQUEST_BODY_SIZE
         body = ''
         if raw_body:
